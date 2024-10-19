@@ -4,3 +4,9 @@ keras
 tensorflow
 numpy
 nltk
+torch
+pydub
+telebot
+transformers
+gensim
+flask

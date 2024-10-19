@@ -1,1 +1,7 @@
 .venv
+*.pkl
+*.h5
+*.w2v
+*.pyc
+*.csv
+*.zip

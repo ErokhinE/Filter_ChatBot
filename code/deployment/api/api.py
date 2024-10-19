@@ -12,6 +12,12 @@ from keras import utils
 from keras.callbacks import ReduceLROnPlateau, EarlyStopping
 from tensorflow.keras.models import load_model
 
+from pydub import AudioSegment
+
+
+
+from transformers import pipeline
+
 # nltk
 import nltk
 from nltk.corpus import stopwords
@@ -29,13 +35,13 @@ import logging
 import time
 import pickle
 import itertools
-from flask import Flask
-
+from flask import Flask, request, jsonify
 
 nltk.download('stopwords')
 
 stop_words = stopwords.words("english")
 stemmer = SnowballStemmer("english")
+transcriber = pipeline(task="automatic-speech-recognition", model="openai/whisper-small")
 TEXT_CLEANING_RE = "@\S+|https?:\S+|http?:\S|[^A-Za-z0-9]+"
 
 def preprocess(text, stem=False):
@@ -98,15 +104,49 @@ with open('/home/danil/Desktop/git_proj/Filter_ChatBot/models/LSTM/encoder.pkl',
 
 app = Flask(__name__)
 
-@app.route("/predict")
-def hello_world(text):
-    preprocessed = preprocess(text, stem=True)
-    result = predict(preprocessed)
-    print('----------------------------------------------------------------------------')
-    print(text)
-    print(preprocessed)
-    print(result)
-    print('----------------------------------------------------------------------------')
-    return result
+@app.route('/predict_label', methods=['POST'])
+def predict_method():
+    try:
+        text = request.json.get('text')
+        preprocessed = preprocess(text, stem=True)
+        result = predict(preprocessed)
+        print('----------------------------------------------------------------------------')
+        print(text)
+        print(preprocessed)
+        print(result)
+        print('----------------------------------------------------------------------------')
+        return result
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
+    
+def convert_ogg_to_mp3(ogg_file, mp3_file):
+    ogg_audio = AudioSegment.from_file(ogg_file, format="ogg")
+    ogg_audio.export(mp3_file, format="mp3")
+    
+
+@app.route('/predict_voice', methods=['POST'])
+def predict_voice():
+    if request.method == 'POST':
+        try:
+            f_ogg = request.files['the_file']
+            name_ogg = f'{time.time_ns()}'
+            f_ogg.save(f'code/deployment/api/files/{name_ogg}.ogg')
+            f_ogg.close()
+            convert_ogg_to_mp3(f'code/deployment/api/files/{name_ogg}.ogg', f'code/deployment/api/files/{name_ogg}_result.mp3')
+            with open(f'code/deployment/api/files/{name_ogg}_result.mp3') as f:
+                text = transcriber(f'code/deployment/api/files/{name_ogg}_result.mp3')['text']
+                preprocessed = preprocess(text, stem=True)
+                result = predict(preprocessed)
+                print('----------------------------------------------------------------------------')
+                print(text)
+                print(preprocessed)
+                print(result)
+                print('----------------------------------------------------------------------------')
+                os.remove(f'code/deployment/api/files/{name_ogg}.ogg')
+                os.remove(f'code/deployment/api/files/{name_ogg}_result.mp3')
+                return result
+        except Exception as e:
+            return jsonify({'error': str(e)}), 400
 
 
