@@ -1,0 +1,28 @@
+version: '1'
+
+services:
+  flask:
+    build:
+      context: .
+      dockerfile: code/deployment/api/Dockerfile
+    container_name: flask
+    ports:
+      - "5000:5000"
+    networks:
+      - app
+
+
+  bot:
+    build:
+      context: .
+      dockerfile: code/deployment/bot/Dockerfile
+    container_name: bot
+    depends_on:
+      - flask
+    ports:
+    - "8000:8000"
+    networks:
+      - app
+networks:
+  app:
+    driver: bridge

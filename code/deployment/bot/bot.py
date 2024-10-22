@@ -50,12 +50,12 @@ def unmute_user(message):
 def check_message(message):
     if message.content_type == 'text':
         data = {'text': message.text}
-        response = requests.post('http://127.0.0.1:5000/predict_label', json=data)
+        response = requests.post('http://flask:5000/predict_label', json=data)
     else:
         print('got audio')
         file_info = bot.get_file(message.voice.file_id)
         downloaded_file = bot.download_file(file_info.file_path)
-        response = requests.post('http://127.0.0.1:5000/predict_voice', files={"the_file": downloaded_file})
+        response = requests.post('http://flask:5000/predict_voice', files={"the_file": downloaded_file})
     if response.status_code == 200:
         result = response.json()
         if result['label'] == 'NEGATIVE' or result['label'] == 'spam':

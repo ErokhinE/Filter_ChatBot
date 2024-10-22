@@ -1,0 +1,11 @@
+scikit-learn
+tensorflow
+keras
+pydub
+joblib
+transformers
+nltk
+gensim
+flask
+numpy
+tf-keras

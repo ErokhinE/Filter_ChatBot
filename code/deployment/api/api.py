@@ -38,6 +38,11 @@ import pickle
 import itertools
 from flask import Flask, request, jsonify
 
+# paths
+SENTIMENT_MODEL_PATH = os.environ['SENTIMENT_MODEL_PATH']
+SPAM_MODEL_PATH = os.environ['SPAM_MODEL_PATH']
+TEMP_VOICE_PATH = os.environ['TEMP_VOICE_PATH']
+
 TEXT_CLEANING_RE = "@\S+|https?:\S+|http?:\S|[^A-Za-z0-9]+"
 # SENTIMENT
 POSITIVE = "POSITIVE"
@@ -53,19 +58,19 @@ stop_words = stopwords.words("english")
 stemmer = SnowballStemmer("english")
 transcriber = pipeline(task="automatic-speech-recognition", model="openai/whisper-small")
 
-spam_detector = joblib.load('/home/danil/Desktop/git_proj/Filter_ChatBot/models/SpamDetector/spam_detector.pkl')
+spam_detector = joblib.load(f'{SPAM_MODEL_PATH}/spam_detector.pkl')
 
-model = load_model('/home/danil/Desktop/git_proj/Filter_ChatBot/models/LSTM/model.h5')
+model = load_model(f'{SENTIMENT_MODEL_PATH}/model.h5')
 
 # Load the Word2Vec model
-w2v_model = gensim.models.word2vec.Word2Vec.load('/home/danil/Desktop/git_proj/Filter_ChatBot/models/LSTM/model.w2v')
+w2v_model = gensim.models.word2vec.Word2Vec.load(f'{SENTIMENT_MODEL_PATH}/model.w2v')
 
 # Load the tokenizer
-with open('/home/danil/Desktop/git_proj/Filter_ChatBot/models/LSTM/tokenizer.pkl', "rb") as f:
+with open(f'{SENTIMENT_MODEL_PATH}/tokenizer.pkl', "rb") as f:
     tokenizer = pickle.load(f)
 
 # Load the encoder
-with open('/home/danil/Desktop/git_proj/Filter_ChatBot/models/LSTM/encoder.pkl', "rb") as f:
+with open(f'{SENTIMENT_MODEL_PATH}/encoder.pkl', "rb") as f:
     encoder = pickle.load(f)
     
 # crate falsk app instance
@@ -224,11 +229,11 @@ def predict_voice():
         try:
             f_ogg = request.files['the_file']
             name_ogg = f'{time.time_ns()}'
-            f_ogg.save(f'code/deployment/api/files/{name_ogg}.ogg')
+            f_ogg.save(f'{TEMP_VOICE_PATH}/{name_ogg}.ogg')
             f_ogg.close()
-            convert_ogg_to_mp3(f'code/deployment/api/files/{name_ogg}.ogg', f'code/deployment/api/files/{name_ogg}_result.mp3')
-            with open(f'code/deployment/api/files/{name_ogg}_result.mp3') as f:
-                text = transcriber(f'code/deployment/api/files/{name_ogg}_result.mp3')['text']
+            convert_ogg_to_mp3(f'{TEMP_VOICE_PATH}/{name_ogg}.ogg', f'{TEMP_VOICE_PATH}/{name_ogg}_result.mp3')
+            with open(f'{TEMP_VOICE_PATH}/{name_ogg}_result.mp3') as f:
+                text = transcriber(f'{TEMP_VOICE_PATH}/{name_ogg}_result.mp3')['text']
                 
                 result = predict(text)
                 print('----------------------------------------------------------------------------')
@@ -236,10 +241,12 @@ def predict_voice():
                 print(preprocess(text, stem=True))
                 print(result)
                 print('----------------------------------------------------------------------------')
-                os.remove(f'code/deployment/api/files/{name_ogg}.ogg')
-                os.remove(f'code/deployment/api/files/{name_ogg}_result.mp3')
+                os.remove(f'{TEMP_VOICE_PATH}/{name_ogg}.ogg')
+                os.remove(f'{TEMP_VOICE_PATH}/{name_ogg}_result.mp3')
                 return result
         except Exception as e:
             return jsonify({'error': str(e)}), 400
 
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
 
