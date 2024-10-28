@@ -4,7 +4,7 @@ import requests
 
 
 # creating bot instance
-bot = telebot.TeleBot('your_token')
+bot = telebot.TeleBot('7651842902:AAGSFRba28s8KkXmhxtwT_48eLnSp1A0Pf8')
 
 # /start command
 @bot.message_handler(commands=['start'])

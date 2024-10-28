@@ -9,3 +9,4 @@ gensim
 flask
 numpy
 tf-keras
+torch
