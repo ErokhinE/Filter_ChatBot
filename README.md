@@ -14,3 +14,5 @@ python code/deployment/bot/bot.py
 flask --app code/deployment/api/api run
 
 Spam detection dataset: https://www.kaggle.com/datasets/uciml/sms-spam-collection-dataset
+
+Negative messages dataset: https://www.kaggle.com/datasets/kazanova/sentiment140/data
