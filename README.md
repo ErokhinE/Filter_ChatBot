@@ -5,7 +5,7 @@ Our project aims to provide useful tool for chats and groups to filter negative 
 
 **What to do to use our tool:**
 - Clone the repo
-- Get TelegramBot api key and paste it in dockerfile in code/development/Dockerfile: https://t.me/BotFather
+- Get TelegramBot api key and paste it in bot.py in code/development/bot: https://t.me/BotFather
 - Download FFMPEG onto your machine
 - Install the dependencies:
    - pip install -r requirements.txt
@@ -14,7 +14,7 @@ Our project aims to provide useful tool for chats and groups to filter negative 
    - python code/deployment/bot/bot.py
 
    - flask --app code/deployment/api/api run
-- or using docker from project root (be aware that you need to fill bot token inside the dockerfile):
+- or using docker from project root (be aware that you need to fill bot token inside the bot.py):
    - sudo docker-compose --project-directory ./ -f code/deployment/compose.yaml build
    - sudo docker-compose --project-directory ./ -f code/deployment/compose.yaml up
 
