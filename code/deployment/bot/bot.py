@@ -4,7 +4,7 @@ import requests
 
 
 # creating bot instance
-bot = telebot.TeleBot('7651842902:AAGSFRba28s8KkXmhxtwT_48eLnSp1A0Pf8')
+bot = telebot.TeleBot('paste_token')
 
 # /start command
 @bot.message_handler(commands=['start'])
