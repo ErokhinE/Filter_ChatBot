@@ -12,3 +12,5 @@ You may run servers independently
 
 python code/deployment/bot/bot.py
 flask --app code/deployment/api/api run
+
+Spam detection dataset: https://www.kaggle.com/datasets/uciml/sms-spam-collection-dataset
